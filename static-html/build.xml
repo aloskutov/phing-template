@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="static-html" default="help">
+
+	<!-- TimeStamp -->
+	<tstamp/>
+
+	<!-- set properties -->
+	<property name="deployment.dir" value="d:\web\vhosts\static\webroot\${phing.project.name}"/>
+	<property name="development.dir" value="${project.basedir}"/>
+	<property name="css.dir" value="assets\css" />
+	<property name="css.min.dir" value="${css.dir}.min" />
+	<property name="js.dir" value="assets\js" />
+	<property name="js.min.dir" value="${js.dir}.min" />
+	<property name="yuicompressor" value="c:\Toolz\work\yuicompressor-2.4.7\build\yuicompressor-2.4.7.jar" />
+	<property name="backup.arch" value="c:\Progra~1\7-Zip\7z.exe"/>
+	<property name="backup.arch.name" value="${phing.project.name}_${DSTAMP}_${TSTAMP}.7z" />
+	<property name="backup.arch.opt" value="A -r -y -xr!?idea -xr!nbproject -xr!?settings -x!?project" />
+	<property name="backup.dropbox.dir" value="c:\Users\Alex\Dropbox\Work\projects\${phing.project.name}\backup\"/>
+
+	<!-- PatternsSet: src_files -->
+	<patternset id='src_files'>
+		<exclude name=".settings/**" />
+		<exclude name=".idea/**" />
+		<exclude name="nbproject/**" />		
+		<exclude name="**.development.*" />
+		<exclude name="**.md" />
+		<exclude name=".*" />
+		<exclude name=".*." />
+		<exclude name="docblox.txt"/>
+		<exclude name="assets/css/**" />
+		<exclude name="assets/js/**" />
+		<exclude name="assets/*.min/**" />
+		<exclude name="phpcodesniffer.xml"/>
+	</patternset>
+
+	<patternset id="files.css">
+		<include name="**/**.css" />
+	</patternset>
+
+	<patternset id="files.js">
+		<include name="**/**.js" />
+		<!-- Google pretty -->
+		<include name="**/**.css" />
+	</patternset>
+
+	<!-- Target: clear.deployment.dir -->
+	<target name="clear.deployment.dir">
+		<echo msg="Clear deployment directory" />
+		<delete dir="${deployment.dir}" includeemptydirs="true" verbose="false"/>
+		<echo msg="Create deployment directory..." />
+		<mkdir dir="${deployment.dir}" />
+	</target>
+
+	<!-- Target: clear.css.min.dir -->
+	<target name="clear.css.min.dir">
+		<echo msg="Clear ${css.min.dir} directory" />
+		<delete dir="${development.dir}/${css.min.dir}" includeemptydirs="true" verbose="false"/>
+	</target>
+
+	<!-- Target: clear.js.min.dir -->
+	<target name="clear.js.min.dir">
+		<echo msg="Clear ${js.min.dir} directory" />
+		<delete dir="${development.dir}/${js.min.dir}" includeemptydirs="true" verbose="false"/>
+	</target>
+
+	<!-- Target: copy.css.min -->
+	<target name="copy.css.min"> 
+		<echo msg="Copy minify css to deployment"/>
+		<copy todir="${deployment.dir}/${css.dir}" overwrite="true" includeemptydirs="true">
+			<fileset dir="${development.dir}/${css.min.dir}">
+				<patternset refid="src_files"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<!-- Target: copy.js.min -->
+	<target name="copy.js.min"> 
+		<echo msg="Copy minify js to deployment"/>
+		<copy todir="${deployment.dir}/${js.dir}" overwrite="true" includeemptydirs="true">
+			<fileset dir="${development.dir}/${js.min.dir}">
+				<patternset refid="src_files"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<!-- Target: copy_static -->
+	<target name="copy_static" depends="copy.css.min, copy.js.min">
+		<echo msg="Change development static files on deployment"/>
+		<copy todir="${deployment.dir}" overwrite="true" includeemptydirs="true">
+			<fileset dir="${development.dir}">
+				<patternset refid="src_files"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<!-- Target: minify.css -->
+	<target name="minify.css" >
+		<copy todir="${development.dir}/${css.min.dir}" overwrite="true" includeemptydirs="true">
+			<fileset dir="${css.dir}">
+				<patternset refid="files.css" />
+			</fileset>
+		</copy>
+		<foreach param="filename" absparam="absfilename" target="minify">
+			<fileset dir="${development.dir}/${css.min.dir}">
+				<patternset refid="files.css" />
+			</fileset>
+		</foreach>
+	</target>
+
+	<!-- Target: minify.js -->
+	<target name="minify.js" >
+		<copy todir="${development.dir}/${js.min.dir}" overwrite="true" includeemptydirs="true">
+			<fileset dir="${js.dir}">
+				<patternset refid="files.js" />
+			</fileset>
+		</copy>
+		<foreach param="filename" absparam="absfilename" target="minify">
+			<fileset dir="${development.dir}/${js.min.dir}">
+				<patternset refid="files.js" />
+			</fileset>
+		</foreach>
+	</target>
+
+	<!-- Target: minify -->
+	<target name="minify">
+		<echo msg="Minimizing: ${filename}" />
+		<exec command="java -jar ${yuicompressor} ${absfilename} -o ${absfilename}" />
+	</target>
+
+	<!-- Target: pack -->
+	<target name="pack" description="Create archive" >
+		<exec command="${backup.arch} ${backup.arch.opt} ${backup.arch.name} " dir="${development.dir}" />
+	</target>
+
+	<!-- Target: copy2dropbox -->
+	<target name="copy2dropbox">
+		<echo msg="Move to Dropbox directory" />
+		<move file="${development.dir}/${backup.arch.name}" tofile="${backup.dropbox.dir}/${backup.arch.name}" overwrite="true"/>
+	</target>
+
+	<!-- [DEFAULT] Target: help -->
+	<target name='help'>
+		<echo msg="Project: ${phing.project.name}. Available targets:"/>
+		<echo msg=""/>
+		<echo msg="help        Disply this message."/>
+		<echo msg="deploy      Deploy html files."/>
+		<echo msg="build       Minify css and JavaScript files."/>
+		<echo msg="            Create backup and deploy project files."/>
+		<echo msg="clear       Clear project files."/>
+		<echo msg="backup      Create backup."/>
+	</target>
+	<!-- target: build -->
+	<target name="build" depends="clear, backup, minify.all, deploy">
+	</target>
+	<!-- Target: clear -->
+	<target name="clear" depends="clear.deployment.dir, clear.css.min.dir, clear.js.min.dir">
+	</target>
+    <!-- Target: minify -->
+    <target name="minify.all" depends="minify.css, minify.js">
+    </target>
+    <!-- Target: backup -->
+	<target name="backup" depends="pack, copy2dropbox">
+	</target>
+	<!-- Target: build_html -->
+	<target name="deploy" depends="copy_static">
+	</target>
+</project>
