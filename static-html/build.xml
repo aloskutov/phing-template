@@ -155,10 +155,10 @@
 	<!-- Target: clear -->
 	<target name="clear" depends="clear.deployment.dir, clear.css.min.dir, clear.js.min.dir">
 	</target>
-    <!-- Target: minify -->
-    <target name="minify.all" depends="minify.css, minify.js">
-    </target>
-    <!-- Target: backup -->
+	<!-- Target: minify -->
+	<target name="minify.all" depends="minify.css, minify.js">
+	</target>
+	<!-- Target: backup -->
 	<target name="backup" depends="pack, copy2dropbox">
 	</target>
 	<!-- Target: build_html -->
