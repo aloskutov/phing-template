@@ -14,15 +14,26 @@
 	<property name="yuicompressor" value="c:\Toolz\work\yuicompressor-2.4.7\build\yuicompressor-2.4.7.jar" />
 	<property name="backup.arch" value="c:\Progra~1\7-Zip\7z.exe"/>
 	<property name="backup.arch.name" value="${phing.project.name}_${DSTAMP}_${TSTAMP}.7z" />
-	<property name="backup.arch.opt" value="A -r -y -xr!?idea -xr!nbproject -xr!?settings -x!?project" />
+	<property name="backup.arch.opt" value="A -r -y -xr!?idea -xr!nbproject -xr!?settings -x!?project -xr!?komodotools -x!*komodoproject" />
 	<property name="backup.dropbox.dir" value="c:\Users\Alex\Dropbox\Work\projects\${phing.project.name}\backup\"/>
+
+	<if>
+		<equals arg1="${host.name}" arg2="ASPIRE" />
+		<then>
+			<echo msg="Host name: ${host.name}"/>
+			<property name="deployment.dir" override="true" value="c:\Toolz\vhosts\static\webroot\${phing.project.name}"/>
+			<property name="yuicompressor"  override="true" value="c:\Toolz\yuicompressor-2.4.7\build\yuicompressor-2.4.7.jar" />
+		</then>
+	</if>
 
 	<!-- PatternsSet: src_files -->
 	<patternset id='src_files'>
 		<exclude name=".settings/**" />
 		<exclude name=".idea/**" />
-		<exclude name="nbproject/**" />		
+		<exclude name="nbproject/**" />
 		<exclude name="**.development.*" />
+		<exclude name=".komodotools/**" />
+		<exclude name="**.komodoproject" />
 		<exclude name="**.md" />
 		<exclude name=".*" />
 		<exclude name=".*." />
