@@ -5,6 +5,7 @@
 	<tstamp/>
 
 	<!-- set properties -->
+	<!-- Main workstation -->
 	<property name="deployment.dir" value="d:\web\vhosts\static\webroot\${phing.project.name}"/>
 	<property name="development.dir" value="${project.basedir}"/>
 	<property name="css.dir" value="assets\css" />
@@ -17,6 +18,7 @@
 	<property name="backup.arch.opt" value="A -r -y -xr!?idea -xr!nbproject -xr!?settings -x!?project -xr!?komodotools -x!*komodoproject" />
 	<property name="backup.dropbox.dir" value="c:\Users\Alex\Dropbox\Work\projects\${phing.project.name}\backup\"/>
 
+	<!-- Notebook. Hostname: ASPIRE-->
 	<if>
 		<equals arg1="${host.name}" arg2="ASPIRE" />
 		<then>
